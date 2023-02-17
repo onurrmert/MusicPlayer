@@ -1,22 +1,12 @@
 package com.example.music.Util
 
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Environment
 import com.example.music.Model.MusicModel
 import java.io.File
 
 class FindMusic : IFindMusic {
-
-    override fun getMusic() : ArrayList<MusicModel>{
-
-        val list = ArrayList<MusicModel>()
-
-        getMusicFile(Environment.getExternalStorageDirectory()).forEach {
-            list.add(MusicModel(Uri.fromFile(it), it.name))
-        }
-
-        return list
-    }
 
     override fun getMusicFile(files: File): ArrayList<File> {
 

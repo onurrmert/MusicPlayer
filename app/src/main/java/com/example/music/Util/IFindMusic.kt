@@ -6,6 +6,4 @@ import java.io.File
 interface IFindMusic {
 
     fun getMusicFile(files: File) : ArrayList<File>?
-
-    fun getMusic() : ArrayList<MusicModel>?
 }
