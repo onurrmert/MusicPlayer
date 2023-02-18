@@ -38,6 +38,7 @@
 
         <SeekBar
             android:id="@+id/seekBar"
+            android:layout_margin="10dp"
             android:outlineSpotShadowColor="@color/blue"
             android:outlineAmbientShadowColor="@color/dark_blue"
             android:background="@drawable/seek_bar_background"

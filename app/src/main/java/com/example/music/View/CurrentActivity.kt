@@ -1,9 +1,10 @@
 package com.example.music.View
 
 import android.content.Intent
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.music.Adaper.CurrentAdapter
@@ -16,14 +17,16 @@ import com.example.music.Util.MediaPlayerController
 import com.example.music.Util.MusicList
 import com.example.music.ViewModel.CurrentViewModel
 import com.example.music.databinding.ActivityCurrentBinding
-import java.io.File
-import java.text.FieldPosition
+import java.util.*
+import kotlin.collections.ArrayList
 
 class CurrentActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCurrentBinding
 
     private lateinit var findMusic: IFindMusic
+
+    private val musicList = ArrayList<MusicModel>()
 
     private val viewModel by lazy {
         ViewModelProvider(this, defaultViewModelProviderFactory).get(CurrentViewModel::class.java)
@@ -46,33 +49,75 @@ class CurrentActivity : AppCompatActivity() {
         viewModel.getMusic(this)
 
         getMusic()
+
+        search()
     }
 
     private fun getMusic(){
         viewModel.musicList.observe(this, {
             if (it.size > 0){
-                initRecycler(it)
+
+                musicList.addAll(MusicList.getMusiclist(it))
+
+                initRecycler(MusicList.getMusiclist(it))
             }
         })
     }
 
-    private fun initRecycler(musicFileList : ArrayList<File>){
+    private fun search(){
 
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.search.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
+            android.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
 
-        binding.recyclerView.adapter = CurrentAdapter(
+            override fun onQueryTextChange(newText: String?): Boolean {
+                filter1(newText!!)
+                return true
+            }
+        })
+    }
 
-            MusicList.getMusiclist(musicFileList),
+    private fun filter1(text : String){
 
-            object: IOnItemClickListener{
+        val filterList = ArrayList<MusicModel>()
 
-                override fun onItemClick(item: MusicModel, position: Int) {
+        musicList.forEach {
+            if (it.musicName!!.toLowerCase(Locale.ROOT).contains(text.toLowerCase(Locale.ROOT))){
+                filterList.add(it)
+            }
+        }
 
-                    closeCurrentMusic()
+        if (filterList.isEmpty()){
+            Toast.makeText(this, "Music is not found", Toast.LENGTH_SHORT).show()
+        }else{
+            initRecycler(filterList)
+        }
+    }
 
-                    openMusicPlayerActivity(position)
-                }
-            })
+
+    private fun initRecycler(musicModelList : ArrayList<MusicModel>){
+
+            val adapter = CurrentAdapter(
+
+                musicModelList,
+
+                object: IOnItemClickListener{
+
+                    override fun onItemClick(item: MusicModel, position: Int) {
+
+                        closeCurrentMusic()
+
+                        openMusicPlayerActivity(musicList.indexOf(item))
+                    }
+                })
+
+            binding.recyclerView.adapter = adapter
+
+            binding.recyclerView.layoutManager = LinearLayoutManager(this)
+
+            adapter.setFilterList(musicModelList)
     }
 
     private fun openMusicPlayerActivity(position: Int){

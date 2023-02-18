@@ -1,5 +1,6 @@
 package com.example.music.Adaper
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,7 @@ import com.example.music.R
 import com.example.music.databinding.CurrentRecyclerRowBinding
 
 class CurrentAdapter (
-    private val musicList:ArrayList<MusicModel>,
+    private var musicList:ArrayList<MusicModel>,
     private val listener: IOnItemClickListener
     ) : RecyclerView.Adapter<CurrentAdapter.CurrenViewHolder>(){
 
@@ -43,5 +44,11 @@ class CurrentAdapter (
         holder.binding.textName.setOnClickListener {
             listener.onItemClick(musicList.get(position), position)
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setFilterList(movieFilterList: ArrayList<MusicModel>){
+        musicList = movieFilterList
+        notifyDataSetChanged()
     }
 }

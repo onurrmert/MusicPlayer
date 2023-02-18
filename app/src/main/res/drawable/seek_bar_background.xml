@@ -6,6 +6,9 @@
                 android:endColor="@color/white"
                 android:startColor="@color/dark_blue"
                 android:useLevel="true" />
+            <corners
+                android:radius="10dp"
+                />
         </shape>
     </item>
 </layer-list>
