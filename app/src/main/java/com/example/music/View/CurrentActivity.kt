@@ -61,6 +61,7 @@ class CurrentActivity : AppCompatActivity() {
 
     private fun getMusic(){
         viewModel.musicList.observe(this, {
+
             if (it.size > 0){
 
                 musicList.addAll(MusicList.getMusiclist(it))
@@ -71,13 +72,11 @@ class CurrentActivity : AppCompatActivity() {
     }
 
     private fun search(){
-
         binding.search.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
             android.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return true
             }
-
             override fun onQueryTextChange(newText: String?): Boolean {
                 filter1(newText!!)
                 return true
@@ -133,11 +132,11 @@ class CurrentActivity : AppCompatActivity() {
 
         binding.btnShuffle.setOnClickListener {
 
-            val rnds = (0..musicList.size-1).random()
+            val random = (0..musicList.size-1).random()
 
             closeCurrentMusic()
 
-            openMusicPlayerActivity(rnds)
+            openMusicPlayerActivity(random)
         }
     }
 
@@ -150,6 +149,7 @@ class CurrentActivity : AppCompatActivity() {
     }
 
     private fun closeCurrentMusic(){
+        stopService(Intent(this, MediaPlayerController::class.java))
         MediaPlayerController.mediaPlayer?.stop()
     }
 }

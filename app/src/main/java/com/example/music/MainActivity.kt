@@ -20,11 +20,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         CoroutineScope(Dispatchers.Main).launch {
-            goCurrent()
+            openCurrentActivity()
         }
     }
 
-    private suspend fun goCurrent(){
+    private suspend fun openCurrentActivity(){
         delay(1000)
         startActivity(Intent(this@MainActivity, CurrentActivity::class.java))
         overridePendingTransition(R.anim.rigthtoleft1, R.anim.rigthtoleft2)

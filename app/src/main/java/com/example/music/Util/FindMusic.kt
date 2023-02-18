@@ -1,9 +1,5 @@
 package com.example.music.Util
 
-import android.media.MediaPlayer
-import android.net.Uri
-import android.os.Environment
-import com.example.music.Model.MusicModel
 import java.io.File
 
 class FindMusic : IFindMusic {

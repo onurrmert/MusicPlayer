@@ -21,7 +21,7 @@ class CurrentViewModel () : ViewModel() {
     }
 
     fun getMusic(lifecycleOwner: LifecycleOwner){
-        checkPermission.musicList.observe(lifecycleOwner, Observer {
+        checkPermission.musicList.observe(lifecycleOwner, {
             musicList.value = it
         })
     }

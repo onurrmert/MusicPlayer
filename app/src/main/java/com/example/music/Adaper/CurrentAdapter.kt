@@ -20,11 +20,11 @@ class CurrentAdapter (
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrenViewHolder {
 
-        val layout = LayoutInflater
+        return CurrenViewHolder(
+            LayoutInflater
             .from(parent.context)
             .inflate(R.layout.current_recycler_row, parent, false)
-
-        return CurrenViewHolder(layout)
+        )
     }
 
     override fun getItemCount(): Int {
@@ -47,8 +47,8 @@ class CurrentAdapter (
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setFilterList(movieFilterList: ArrayList<MusicModel>){
-        musicList = movieFilterList
+    fun setFilterList(filterList: ArrayList<MusicModel>){
+        musicList = filterList
         notifyDataSetChanged()
     }
 }

@@ -1,15 +1,12 @@
 package com.example.music.View
 
-import android.animation.ValueAnimator
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.music.Model.MusicModel
@@ -19,23 +16,28 @@ import com.example.music.Util.MediaPlayerController
 import com.example.music.Util.MusicList
 import com.example.music.ViewModel.MusicPlayerViewModel
 import com.example.music.databinding.ActivityMusicPlayerBinding
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MusicPlayerActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMusicPlayerBinding
 
-    private val viewModel by lazy {
-        ViewModelProvider(this, defaultViewModelProviderFactory).get(MusicPlayerViewModel::class.java)
-    }
+    private lateinit var mediaPlayer : MediaPlayer
 
-    private var mediaPlayer : MediaPlayer? = null
+    private lateinit var context: Context
+
+    private lateinit var uri : Uri
 
     private var counterIcon = 0
 
     private var counterPositon = 0
 
-    private val mHandler: Handler = Handler()
+    private val viewModel by lazy {
+        ViewModelProvider(this, defaultViewModelProviderFactory).get(MusicPlayerViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,8 +56,9 @@ class MusicPlayerActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        initSeekBar()
-
+        CoroutineScope(Dispatchers.Main).launch {
+            initSeekBar()
+        }
         seekBarChange()
     }
 
@@ -65,11 +68,45 @@ class MusicPlayerActivity : AppCompatActivity() {
 
             val music = MusicList.getMusiclist(it).get(position)
 
-            initMediaPlayer(music.musicUri!!)
+            context = this
 
-            btnClick(music.musicUri, it.size)
+            music.musicUri?.let { uri = it }
+
+            music.musicUri?.let { it1 -> initMediaPlayer() }
+
+            btnClick(it.size)
 
             initText(music)
+        }
+    }
+
+    private fun initMediaPlayer(){
+
+        mediaPlayer = MediaPlayer.create(this, uri)
+
+        MediaPlayerController.mediaPlayer = mediaPlayer
+
+        MediaPlayerController.start()
+
+        startService(Intent(this, MediaPlayerController::class.java))
+    }
+
+    private fun initText(musicModel: MusicModel){
+
+        binding.textMusicName.text = musicModel.musicName!!
+
+        binding.textDuration.text = mediaPlayer.duration.let { timestampToMSS(it) }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            currentTextTime()
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private suspend fun currentTextTime() {
+        while (true){
+            delay(1000)
+            binding.textStart.text = timestampToMSS(mediaPlayer.currentPosition)
         }
     }
 
@@ -79,64 +116,38 @@ class MusicPlayerActivity : AppCompatActivity() {
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
 
-               if (fromUser) mediaPlayer?.seekTo(progress.times(1000))
-
+                if (fromUser) mediaPlayer.seekTo(progress.times(1000))
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
             }
-
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
             }
         })
     }
 
-    private fun initSeekBar() {
+    private suspend fun initSeekBar() {
 
-        binding.seekBar.max = mediaPlayer?.duration!!.div(1000)
+        binding.seekBar.max = mediaPlayer.duration.div(1000)
 
-        mHandler.postDelayed(object : Runnable{
-            override fun run() {
-                try {
-                    binding.seekBar.setProgress(mediaPlayer?.currentPosition!!.div(1000))
-                    mHandler.postDelayed(this, 1000)
-                }catch (e : Exception){
-                    binding.seekBar.setProgress(0)
-                }
-            }
-        },0)
+        while (true){
+            delay(1000)
+            binding.seekBar.setProgress(mediaPlayer.currentPosition.div(1000))
+        }
     }
 
-    private fun initMediaPlayer(uri: Uri){
-
-        mediaPlayer = MediaPlayer.create(this, uri)
-
-        MediaPlayerController.mediaPlayer = mediaPlayer
-
-        MediaPlayerController.start(this, uri)
-    }
-
-    private fun initText(musicModel: MusicModel){
-
-        binding.textMusicName.text = musicModel.musicName!!
-
-    }
-
-    private fun btnClick(uri: Uri, listSize : Int){
+    private fun btnClick(listSize : Int){
 
         binding.btnPlayOrPause.setOnClickListener {
 
             if (counterIcon % 2 == 0){
-
-                MediaPlayerController.pause(this, uri)
+                MediaPlayerController.pause()
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_start)
                 counterIcon++
 
             }else{
 
-                MediaPlayerController.start(this, uri)
+                stopService(Intent(this, MediaPlayerController::class.java))
+                MediaPlayerController.start()
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
             }
@@ -147,7 +158,7 @@ class MusicPlayerActivity : AppCompatActivity() {
             if (counterPositon < (listSize - 1)){
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
-                mediaPlayer?.stop()
+                mediaPlayer.stop()
                 getMusic(++counterPositon)
             }
         }
@@ -157,7 +168,7 @@ class MusicPlayerActivity : AppCompatActivity() {
             if (counterPositon > 0){
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
-                mediaPlayer?.stop()
+                mediaPlayer.stop()
                 getMusic(--counterPositon)
             }
         }
@@ -166,12 +177,14 @@ class MusicPlayerActivity : AppCompatActivity() {
     }
 
     private fun onCompleteMusic(listSize: Int){
+
         if (counterPositon < (listSize -1)){
-            mediaPlayer?.setOnCompletionListener {
+
+            mediaPlayer.setOnCompletionListener {
                 getMusic(++counterPositon)
             }
         }else{
-            mediaPlayer?.isLooping = true
+            mediaPlayer.isLooping = true
         }
     }
 
@@ -179,6 +192,14 @@ class MusicPlayerActivity : AppCompatActivity() {
         return intent.getIntExtra("position", 0)
     }
 
+    fun timestampToMSS(position: Int): String {
+        val totalSeconds = Math.floor(position / 1E3).toInt()
+        val minutes = totalSeconds / 60
+        val remainingSeconds = totalSeconds - (minutes * 60)
+        return (minutes.toString() + ":" + remainingSeconds.toString())
+    }
+
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         startActivity(Intent(this, CurrentActivity::class.java))
         overridePendingTransition(R.anim.lefttorigth1, R.anim.lefttorigth2)

@@ -1,41 +1,57 @@
 package com.example.music.Util
 
+import android.annotation.SuppressLint
+import android.app.Service
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.IBinder
 
-class MediaPlayerController {
+class MediaPlayerController : Service(){
 
     companion object{
 
         var mediaPlayer: MediaPlayer? = null
 
-        fun start(context: Context, uri: Uri){
+        @SuppressLint("StaticFieldLeak")
+        var context : Context? = null
 
-            if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer.create(context, uri)
-            }
+        var uri: Uri? = null
+
+        fun start(){
+
+            if (mediaPlayer == null) mediaPlayer = MediaPlayer.create(context, uri)
 
             mediaPlayer?.start()
         }
 
-        fun pause(context: Context, uri: Uri){
+        fun pause(){
 
-            if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer.create(context, uri)
-            }
-            if (mediaPlayer!!.isPlaying){
-                mediaPlayer!!.pause()
-            }
-        }
+            if (mediaPlayer == null) mediaPlayer = MediaPlayer.create(context, uri)
 
-        fun stop(){
-            if (mediaPlayer != null){
-                mediaPlayer!!.stop()
-                mediaPlayer!!.reset()
-                mediaPlayer!!.release()
-                mediaPlayer = null
-            }
+            if (mediaPlayer!!.isPlaying) mediaPlayer!!.pause()
         }
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        start()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onStart(intent: Intent?, startId: Int) {
+        super.onStart(intent, startId)
+        start()
+    }
+
+    override fun stopService(name: Intent?): Boolean {
+        pause()
+        return super.stopService(name)
     }
 }

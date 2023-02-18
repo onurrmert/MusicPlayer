@@ -15,7 +15,6 @@ class MusicList {
             musicFileList.forEach {
                 musicList.add(MusicModel( Uri.fromFile(it), it.name))
             }
-
             return musicList
         }
     }
