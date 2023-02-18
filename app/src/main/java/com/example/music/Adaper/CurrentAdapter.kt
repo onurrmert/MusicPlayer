@@ -1,19 +1,19 @@
-package com.example.music
+package com.example.music.Adaper
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.music.Model.MusicModel
+import com.example.music.R
 import com.example.music.databinding.CurrentRecyclerRowBinding
-import java.io.File
 
 class CurrentAdapter (
-    private val musicFileList:ArrayList<File>,
     private val musicList:ArrayList<MusicModel>,
-) : RecyclerView.Adapter<CurrentAdapter.CurrenViewHolder>(){
+    private val listener: IOnItemClickListener
+    ) : RecyclerView.Adapter<CurrentAdapter.CurrenViewHolder>(){
 
-    class CurrenViewHolder(val layout: View) : RecyclerView.ViewHolder(layout){
+    class CurrenViewHolder(layout: View) : RecyclerView.ViewHolder(layout){
         val binding = CurrentRecyclerRowBinding.bind(layout)
     }
 
@@ -35,5 +35,13 @@ class CurrentAdapter (
         holder.binding.textName.setText(musicList.get(position).musicName)
 
         holder.binding.textModified.setText("tarih")
+
+        holder.binding.recyclerRow.setOnClickListener {
+            listener.onItemClick(musicList.get(position))
+        }
+
+        holder.binding.textName.setOnClickListener {
+            listener.onItemClick(musicList.get(position))
+        }
     }
 }
