@@ -1,13 +1,18 @@
 package com.example.music.View
 
+import android.animation.ValueAnimator
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.music.Model.MusicModel
 import com.example.music.R
 import com.example.music.Util.FindMusic
 import com.example.music.Util.MediaPlayerController
@@ -63,6 +68,8 @@ class MusicPlayerActivity : AppCompatActivity() {
             initMediaPlayer(music.musicUri!!)
 
             btnClick(music.musicUri, it.size)
+
+            initText(music)
         }
     }
 
@@ -111,6 +118,12 @@ class MusicPlayerActivity : AppCompatActivity() {
         MediaPlayerController.start(this, uri)
     }
 
+    private fun initText(musicModel: MusicModel){
+
+        binding.textMusicName.text = musicModel.musicName!!
+
+    }
+
     private fun btnClick(uri: Uri, listSize : Int){
 
         binding.btnPlayOrPause.setOnClickListener {
@@ -129,16 +142,11 @@ class MusicPlayerActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnStop.setOnClickListener {
-            MediaPlayerController.stop()
-            counterIcon--
-            binding.btnPlayOrPause.setImageResource(R.drawable.ic_start)
-        }
-
         binding.btnNext.setOnClickListener {
 
             if (counterPositon < (listSize - 1)){
-
+                binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
+                counterIcon++
                 mediaPlayer?.stop()
                 getMusic(++counterPositon)
             }
@@ -147,10 +155,23 @@ class MusicPlayerActivity : AppCompatActivity() {
         binding.btnPrev.setOnClickListener {
 
             if (counterPositon > 0){
-
+                binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
+                counterIcon++
                 mediaPlayer?.stop()
                 getMusic(--counterPositon)
             }
+        }
+
+        onCompleteMusic(listSize)
+    }
+
+    private fun onCompleteMusic(listSize: Int){
+        if (counterPositon < (listSize -1)){
+            mediaPlayer?.setOnCompletionListener {
+                getMusic(++counterPositon)
+            }
+        }else{
+            mediaPlayer?.isLooping = true
         }
     }
 
