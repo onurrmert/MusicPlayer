@@ -13,6 +13,7 @@ import com.example.music.R
 import com.example.music.Util.FindMusic
 import com.example.music.Util.IFindMusic
 import com.example.music.Util.MediaPlayerController
+import com.example.music.Util.MusicList
 import com.example.music.ViewModel.CurrentViewModel
 import com.example.music.databinding.ActivityCurrentBinding
 import java.io.File
@@ -61,7 +62,7 @@ class CurrentActivity : AppCompatActivity() {
 
         binding.recyclerView.adapter = CurrentAdapter(
 
-            getMusicList(musicFileList),
+            MusicList.getMusiclist(musicFileList),
 
             object: IOnItemClickListener{
 
@@ -69,25 +70,14 @@ class CurrentActivity : AppCompatActivity() {
 
                     closeCurrentMusic()
 
-                    //openMusicPlayerActivity(item.musicUri!!)
+                    openMusicPlayerActivity(position)
                 }
             })
     }
 
-    private fun getMusicList(musicFileList: ArrayList<File>) : ArrayList<MusicModel>{
-
-        val musicList = ArrayList<MusicModel>()
-
-        musicFileList.forEach {
-            musicList.add(MusicModel( Uri.fromFile(it), it.name))
-        }
-
-        return musicList
-    }
-
-    private fun openMusicPlayerActivity(uri: Uri){
+    private fun openMusicPlayerActivity(position: Int){
         val intent = Intent(this@CurrentActivity, MusicPlayerActivity::class.java)
-        intent.putExtra("musicUri1", uri.toString())
+        intent.putExtra("position", position)
         startActivity(intent)
         overridePendingTransition(R.anim.rigthtoleft1, R.anim.rigthtoleft2)
         finish()

@@ -5,36 +5,65 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.music.R
+import com.example.music.Util.FindMusic
 import com.example.music.Util.MediaPlayerController
+import com.example.music.Util.MusicList
+import com.example.music.ViewModel.MusicPlayerViewModel
 import com.example.music.databinding.ActivityMusicPlayerBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 class MusicPlayerActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMusicPlayerBinding
 
+    private val viewModel by lazy {
+        ViewModelProvider(this, defaultViewModelProviderFactory).get(MusicPlayerViewModel::class.java)
+    }
+
     private var mediaPlayer : MediaPlayer? = null
 
-    private var counter = 0
+    private var counterIcon = 0
+
+    private var counterPositon = 0
 
     private val mHandler: Handler = Handler()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMusicPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initMediaPlayer()
+        val findMusic = FindMusic()
+
+        viewModel.getMusicFile(findMusic)
+
+        counterPositon = getPosition()
+
+        getMusic(getPosition())
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         initSeekBar()
 
         seekBarChange()
+    }
+
+    private fun getMusic(position: Int){
+
+        viewModel.musicList.observe(this) {
+
+            val music = MusicList.getMusiclist(it).get(position)
+
+            initMediaPlayer(music.musicUri!!)
+
+            btnClick(music.musicUri, it.size)
+        }
     }
 
     private fun seekBarChange() {
@@ -73,58 +102,64 @@ class MusicPlayerActivity : AppCompatActivity() {
         },0)
     }
 
-    private fun initMediaPlayer(){
+    private fun initMediaPlayer(uri: Uri){
 
-        mediaPlayer = MediaPlayer.create(this, getOpenUri())
+        mediaPlayer = MediaPlayer.create(this, uri)
 
         MediaPlayerController.mediaPlayer = mediaPlayer
 
-        MediaPlayerController.start(this, getOpenUri())
+        MediaPlayerController.start(this, uri)
     }
 
-    override fun onResume() {
-        super.onResume()
-        btnClick()
-    }
-
-    private fun btnClick(){
+    private fun btnClick(uri: Uri, listSize : Int){
 
         binding.btnPlayOrPause.setOnClickListener {
 
-            if (counter % 2 == 0){
+            if (counterIcon % 2 == 0){
 
-                MediaPlayerController.pause(this, getOpenUri())
+                MediaPlayerController.pause(this, uri)
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_start)
-                counter++
+                counterIcon++
 
             }else{
 
-                MediaPlayerController.start(this, getOpenUri())
+                MediaPlayerController.start(this, uri)
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
-                counter++
+                counterIcon++
             }
         }
 
         binding.btnStop.setOnClickListener {
             MediaPlayerController.stop()
-            counter--
+            counterIcon--
             binding.btnPlayOrPause.setImageResource(R.drawable.ic_start)
+        }
+
+        binding.btnNext.setOnClickListener {
+
+            if (counterPositon < (listSize - 1)){
+
+                mediaPlayer?.stop()
+                getMusic(++counterPositon)
+            }
+        }
+
+        binding.btnPrev.setOnClickListener {
+
+            if (counterPositon > 0){
+
+                mediaPlayer?.stop()
+                getMusic(--counterPositon)
+            }
         }
     }
 
-    private fun getOpenUri() : Uri{
-        return Uri.parse(intent.getStringExtra("musicUri1"))
+    private fun getPosition() : Int{
+        return intent.getIntExtra("position", 0)
     }
 
-    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        openCurrentActivity()
-    }
-
-    private fun openCurrentActivity(){
-        val intent = Intent(this, CurrentActivity::class.java)
-        intent.putExtra("currentMusic", getOpenUri().toString())
-        startActivity(intent)
+        startActivity(Intent(this, CurrentActivity::class.java))
         overridePendingTransition(R.anim.lefttorigth1, R.anim.lefttorigth2)
         finish()
     }
