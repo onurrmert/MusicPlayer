@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.music.Adaper.CurrentAdapter
@@ -13,10 +12,11 @@ import com.example.music.Model.MusicModel
 import com.example.music.R
 import com.example.music.Util.FindMusic
 import com.example.music.Util.IFindMusic
-import com.example.music.Util.SingletonMediaPlayer
+import com.example.music.Util.MediaPlayerController
 import com.example.music.ViewModel.CurrentViewModel
 import com.example.music.databinding.ActivityCurrentBinding
 import java.io.File
+import java.text.FieldPosition
 
 class CurrentActivity : AppCompatActivity() {
 
@@ -24,16 +24,21 @@ class CurrentActivity : AppCompatActivity() {
 
     private lateinit var findMusic: IFindMusic
 
-    private lateinit var viewModel: CurrentViewModel
+    private val viewModel by lazy {
+        ViewModelProvider(this, defaultViewModelProviderFactory).get(CurrentViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCurrentBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        findMusic = FindMusic()
+        initVM()
+    }
 
-        viewModel = ViewModelProvider(this, defaultViewModelProviderFactory).get(CurrentViewModel::class.java)
+    private fun initVM(){
+
+        findMusic = FindMusic()
 
         viewModel.checkPermission(findMusic, applicationContext)
 
@@ -44,7 +49,9 @@ class CurrentActivity : AppCompatActivity() {
 
     private fun getMusic(){
         viewModel.musicList.observe(this, {
-            initRecycler(it)
+            if (it.size > 0){
+                initRecycler(it)
+            }
         })
     }
 
@@ -53,14 +60,16 @@ class CurrentActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
         binding.recyclerView.adapter = CurrentAdapter(
+
             getMusicList(musicFileList),
 
             object: IOnItemClickListener{
-                override fun onItemClick(item: MusicModel) {
+
+                override fun onItemClick(item: MusicModel, position: Int) {
 
                     closeCurrentMusic()
 
-                    openMusicPlayerActivity(item.musicUri!!)
+                    //openMusicPlayerActivity(item.musicUri!!)
                 }
             })
     }
@@ -72,6 +81,7 @@ class CurrentActivity : AppCompatActivity() {
         musicFileList.forEach {
             musicList.add(MusicModel( Uri.fromFile(it), it.name))
         }
+
         return musicList
     }
 
@@ -84,6 +94,6 @@ class CurrentActivity : AppCompatActivity() {
     }
 
     private fun closeCurrentMusic(){
-        SingletonMediaPlayer.mediaPlayer?.stop()
+        MediaPlayerController.mediaPlayer?.stop()
     }
 }

@@ -4,5 +4,5 @@ import com.example.music.Model.MusicModel
 
 interface IOnItemClickListener {
 
-    fun onItemClick(item: MusicModel)
+    fun onItemClick(item: MusicModel, position: Int)
 }

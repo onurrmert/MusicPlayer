@@ -37,11 +37,11 @@ class CurrentAdapter (
         holder.binding.textModified.setText("tarih")
 
         holder.binding.recyclerRow.setOnClickListener {
-            listener.onItemClick(musicList.get(position))
+            listener.onItemClick(musicList.get(position), position)
         }
 
         holder.binding.textName.setOnClickListener {
-            listener.onItemClick(musicList.get(position))
+            listener.onItemClick(musicList.get(position), position)
         }
     }
 }
