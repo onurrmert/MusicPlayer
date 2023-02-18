@@ -49,8 +49,14 @@ class CurrentActivity : AppCompatActivity() {
         viewModel.getMusic(this)
 
         getMusic()
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         search()
+
+        btnClick()
     }
 
     private fun getMusic(){
@@ -96,7 +102,6 @@ class CurrentActivity : AppCompatActivity() {
         }
     }
 
-
     private fun initRecycler(musicModelList : ArrayList<MusicModel>){
 
             val adapter = CurrentAdapter(
@@ -118,6 +123,22 @@ class CurrentActivity : AppCompatActivity() {
             binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
             adapter.setFilterList(musicModelList)
+    }
+
+    private fun btnClick(){
+
+        binding.btnStop.setOnClickListener {
+            closeCurrentMusic()
+        }
+
+        binding.btnShuffle.setOnClickListener {
+
+            val rnds = (0..musicList.size-1).random()
+
+            closeCurrentMusic()
+
+            openMusicPlayerActivity(rnds)
+        }
     }
 
     private fun openMusicPlayerActivity(position: Int){
