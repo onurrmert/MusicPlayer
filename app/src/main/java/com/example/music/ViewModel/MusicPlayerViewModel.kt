@@ -1,16 +1,16 @@
 package com.example.music.ViewModel
 
-import android.os.Environment
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.music.Model.MusicModel
 import com.example.music.Util.IFindMusic
-import java.io.File
 
 class MusicPlayerViewModel : ViewModel() {
 
-    val musicList = MutableLiveData<ArrayList<File>>()
+    val musicList = MutableLiveData<ArrayList<MusicModel>>()
 
-    fun getMusicFile(iFindMusic: IFindMusic){
-        musicList.value = iFindMusic.getMusicFile(Environment.getExternalStorageDirectory())
+    fun getMusicFile(iFindMusic: IFindMusic, context: Context){
+        musicList.value = iFindMusic.getMusicFile(context)
     }
 }

@@ -1,9 +1,9 @@
 package com.example.music.Util
 
+import android.content.Context
 import com.example.music.Model.MusicModel
-import java.io.File
 
 interface IFindMusic {
 
-    fun getMusicFile(files: File) : ArrayList<File>?
+    fun getMusicFile(context: Context) : ArrayList<MusicModel>?
 }

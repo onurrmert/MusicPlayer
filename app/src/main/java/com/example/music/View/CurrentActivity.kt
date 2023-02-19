@@ -14,7 +14,6 @@ import com.example.music.R
 import com.example.music.Util.FindMusic
 import com.example.music.Util.IFindMusic
 import com.example.music.Util.MediaPlayerController
-import com.example.music.Util.MusicList
 import com.example.music.ViewModel.CurrentViewModel
 import com.example.music.databinding.ActivityCurrentBinding
 import java.util.*
@@ -64,9 +63,9 @@ class CurrentActivity : AppCompatActivity() {
 
             if (it.size > 0){
 
-                musicList.addAll(MusicList.getMusiclist(it))
+                musicList.addAll(it)
 
-                initRecycler(MusicList.getMusiclist(it))
+                initRecycler(it)
             }
         })
     }
@@ -89,7 +88,8 @@ class CurrentActivity : AppCompatActivity() {
         val filterList = ArrayList<MusicModel>()
 
         musicList.forEach {
-            if (it.musicName!!.toLowerCase(Locale.ROOT).contains(text.toLowerCase(Locale.ROOT))){
+            if (it.title.toLowerCase(Locale.ROOT).contains(text.toLowerCase(Locale.ROOT)) ||
+                    it.artist.toLowerCase(Locale.ROOT).contains(text.toLowerCase(Locale.ROOT))   ){
                 filterList.add(it)
             }
         }

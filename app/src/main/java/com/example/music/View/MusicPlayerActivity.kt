@@ -13,7 +13,6 @@ import com.example.music.Model.MusicModel
 import com.example.music.R
 import com.example.music.Util.FindMusic
 import com.example.music.Util.MediaPlayerController
-import com.example.music.Util.MusicList
 import com.example.music.ViewModel.MusicPlayerViewModel
 import com.example.music.databinding.ActivityMusicPlayerBinding
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +24,7 @@ class MusicPlayerActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMusicPlayerBinding
 
-    private lateinit var mediaPlayer : MediaPlayer
+    private var mediaPlayer : MediaPlayer? = null
 
     private lateinit var context: Context
 
@@ -46,7 +45,7 @@ class MusicPlayerActivity : AppCompatActivity() {
 
         val findMusic = FindMusic()
 
-        viewModel.getMusicFile(findMusic)
+        viewModel.getMusicFile(findMusic, this)
 
         counterPositon = getPosition()
 
@@ -66,17 +65,19 @@ class MusicPlayerActivity : AppCompatActivity() {
 
         viewModel.musicList.observe(this) {
 
-            val music = MusicList.getMusiclist(it).get(position)
+            val music = it.get(position)
 
             context = this
 
-            music.musicUri?.let { uri = it }
-
-            music.musicUri?.let { it1 -> initMediaPlayer() }
+            uri = music.uri
 
             btnClick(it.size)
 
             initText(music)
+
+            initMediaPlayer()
+
+            onCompleteMusic(it.size)
         }
     }
 
@@ -87,26 +88,30 @@ class MusicPlayerActivity : AppCompatActivity() {
         MediaPlayerController.mediaPlayer = mediaPlayer
 
         MediaPlayerController.start()
-
-        startService(Intent(this, MediaPlayerController::class.java))
     }
 
     private fun initText(musicModel: MusicModel){
 
-        binding.textMusicName.text = musicModel.musicName!!
+        binding.textMusicName.text = musicModel.title
 
-        binding.textDuration.text = mediaPlayer.duration.let { timestampToMSS(it) }
+        CoroutineScope(Dispatchers.Main).launch {
+            setTextDuration()
+        }
 
         CoroutineScope(Dispatchers.Main).launch {
             currentTextTime()
         }
     }
 
+    private suspend fun setTextDuration(){
+        binding.textDuration.text = mediaPlayer!!.duration.let { timestampToMSS(it) }
+    }
+
     @SuppressLint("SetTextI18n")
     private suspend fun currentTextTime() {
         while (true){
             delay(1000)
-            binding.textStart.text = timestampToMSS(mediaPlayer.currentPosition)
+            binding.textStart.text = mediaPlayer?.currentPosition?.let { timestampToMSS(it) }
         }
     }
 
@@ -116,7 +121,7 @@ class MusicPlayerActivity : AppCompatActivity() {
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
 
-                if (fromUser) mediaPlayer.seekTo(progress.times(1000))
+                if (fromUser) mediaPlayer?.seekTo(progress.times(1000))
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
@@ -126,12 +131,10 @@ class MusicPlayerActivity : AppCompatActivity() {
     }
 
     private suspend fun initSeekBar() {
-
-        binding.seekBar.max = mediaPlayer.duration.div(1000)
-
         while (true){
             delay(1000)
-            binding.seekBar.setProgress(mediaPlayer.currentPosition.div(1000))
+            binding.seekBar.max = mediaPlayer?.duration?.div(1000) ?: 0
+            mediaPlayer?.currentPosition?.let { binding.seekBar.setProgress(it.div(1000)) }
         }
     }
 
@@ -146,7 +149,6 @@ class MusicPlayerActivity : AppCompatActivity() {
 
             }else{
 
-                stopService(Intent(this, MediaPlayerController::class.java))
                 MediaPlayerController.start()
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
@@ -158,7 +160,7 @@ class MusicPlayerActivity : AppCompatActivity() {
             if (counterPositon < (listSize - 1)){
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
-                mediaPlayer.stop()
+                mediaPlayer?.stop()
                 getMusic(++counterPositon)
             }
         }
@@ -168,23 +170,20 @@ class MusicPlayerActivity : AppCompatActivity() {
             if (counterPositon > 0){
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
-                mediaPlayer.stop()
+                mediaPlayer?.stop()
                 getMusic(--counterPositon)
             }
         }
-
-        onCompleteMusic(listSize)
     }
 
     private fun onCompleteMusic(listSize: Int){
 
-        if (counterPositon < (listSize -1)){
-
-            mediaPlayer.setOnCompletionListener {
+        if (counterPositon < (listSize - 1)){
+            mediaPlayer?.setOnCompletionListener {
                 getMusic(++counterPositon)
             }
         }else{
-            mediaPlayer.isLooping = true
+            mediaPlayer?.isLooping = true
         }
     }
 

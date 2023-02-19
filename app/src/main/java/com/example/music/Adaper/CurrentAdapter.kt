@@ -33,9 +33,9 @@ class CurrentAdapter (
 
     override fun onBindViewHolder(holder: CurrenViewHolder, position: Int) {
 
-        holder.binding.textName.setText(musicList.get(position).musicName)
+        holder.binding.textName.setText(musicList.get(position).title)
 
-        holder.binding.textModified.setText("tarih")
+        holder.binding.textModified.setText(musicList.get(position).artist)
 
         holder.binding.recyclerRow.setOnClickListener {
             listener.onItemClick(musicList.get(position), position)
