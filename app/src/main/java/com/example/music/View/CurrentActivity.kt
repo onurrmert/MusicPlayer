@@ -1,9 +1,9 @@
 package com.example.music.View
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,7 +17,6 @@ import com.example.music.Util.MediaPlayerController
 import com.example.music.ViewModel.CurrentViewModel
 import com.example.music.databinding.ActivityCurrentBinding
 import java.util.*
-import kotlin.collections.ArrayList
 
 class CurrentActivity : AppCompatActivity() {
 
@@ -46,25 +45,20 @@ class CurrentActivity : AppCompatActivity() {
         viewModel.checkPermission(findMusic, applicationContext)
 
         viewModel.getMusic(this)
-
         getMusic()
     }
 
     override fun onResume() {
         super.onResume()
-
         search()
-
         btnClick()
     }
 
     private fun getMusic(){
         viewModel.musicList.observe(this, {
-
             if (it.size > 0){
-
+                println("liste " + it.size)
                 musicList.addAll(it)
-
                 initRecycler(it)
             }
         })
@@ -104,23 +98,16 @@ class CurrentActivity : AppCompatActivity() {
     private fun initRecycler(musicModelList : ArrayList<MusicModel>){
 
             val adapter = CurrentAdapter(
-
                 musicModelList,
-
                 object: IOnItemClickListener{
-
                     override fun onItemClick(item: MusicModel, position: Int) {
-
                         closeCurrentMusic()
-
                         openMusicPlayerActivity(musicList.indexOf(item))
                     }
                 })
 
             binding.recyclerView.adapter = adapter
-
             binding.recyclerView.layoutManager = LinearLayoutManager(this)
-
             adapter.setFilterList(musicModelList)
     }
 
@@ -131,11 +118,8 @@ class CurrentActivity : AppCompatActivity() {
         }
 
         binding.btnShuffle.setOnClickListener {
-
             val random = (0..musicList.size-1).random()
-
             closeCurrentMusic()
-
             openMusicPlayerActivity(random)
         }
     }

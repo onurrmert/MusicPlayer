@@ -9,10 +9,15 @@ import android.os.Bundle
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.music.Model.MusicModel
 import com.example.music.R
 import com.example.music.Util.FindMusic
 import com.example.music.Util.MediaPlayerController
+import com.example.music.Util.MediaPlayerController.Companion.mPause
+import com.example.music.Util.MediaPlayerController.Companion.mStart
+import com.example.music.Util.TimetoMSS.Companion.timestampToMSS
 import com.example.music.ViewModel.MusicPlayerViewModel
 import com.example.music.databinding.ActivityMusicPlayerBinding
 import kotlinx.coroutines.CoroutineScope
@@ -44,11 +49,8 @@ class MusicPlayerActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val findMusic = FindMusic()
-
         viewModel.getMusicFile(findMusic, this)
-
         counterPositon = getPosition()
-
         getMusic(getPosition())
     }
 
@@ -64,30 +66,20 @@ class MusicPlayerActivity : AppCompatActivity() {
     private fun getMusic(position: Int){
 
         viewModel.musicList.observe(this) {
-
             val music = it.get(position)
-
             context = this
-
             uri = music.uri
-
             btnClick(it.size)
-
             initText(music)
-
             initMediaPlayer()
-
             onCompleteMusic(it.size)
         }
     }
 
     private fun initMediaPlayer(){
-
         mediaPlayer = MediaPlayer.create(this, uri)
-
         MediaPlayerController.mediaPlayer = mediaPlayer
-
-        MediaPlayerController.start()
+        mStart()
     }
 
     private fun initText(musicModel: MusicModel){
@@ -101,6 +93,12 @@ class MusicPlayerActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             currentTextTime()
         }
+
+        Glide.with(applicationContext)
+            .load(musicModel.uriImage)
+            .apply(RequestOptions().placeholder(R.drawable.img).centerCrop())
+            .error(R.drawable.img)
+            .into(binding.imageView2)
     }
 
     private suspend fun setTextDuration(){
@@ -118,9 +116,7 @@ class MusicPlayerActivity : AppCompatActivity() {
     private fun seekBarChange() {
 
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-
                 if (fromUser) mediaPlayer?.seekTo(progress.times(1000))
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -143,13 +139,13 @@ class MusicPlayerActivity : AppCompatActivity() {
         binding.btnPlayOrPause.setOnClickListener {
 
             if (counterIcon % 2 == 0){
-                MediaPlayerController.pause()
+                mPause()
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_start)
                 counterIcon++
 
             }else{
 
-                MediaPlayerController.start()
+                mStart()
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
             }
@@ -189,13 +185,6 @@ class MusicPlayerActivity : AppCompatActivity() {
 
     private fun getPosition() : Int{
         return intent.getIntExtra("position", 0)
-    }
-
-    fun timestampToMSS(position: Int): String {
-        val totalSeconds = Math.floor(position / 1E3).toInt()
-        val minutes = totalSeconds / 60
-        val remainingSeconds = totalSeconds - (minutes * 60)
-        return (minutes.toString() + ":" + remainingSeconds.toString())
     }
 
     @Deprecated("Deprecated in Java")

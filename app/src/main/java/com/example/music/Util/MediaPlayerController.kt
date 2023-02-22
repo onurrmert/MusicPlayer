@@ -16,14 +16,14 @@ class MediaPlayerController{
 
         var uri: Uri? = null
 
-        fun start(){
+        fun mStart(){
 
             if (mediaPlayer == null) mediaPlayer = MediaPlayer.create(context, uri)
 
             mediaPlayer?.start()
         }
 
-        fun pause(){
+        fun mPause(){
 
             if (mediaPlayer == null) mediaPlayer = MediaPlayer.create(context, uri)
 

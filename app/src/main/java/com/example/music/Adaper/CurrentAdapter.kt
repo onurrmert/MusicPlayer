@@ -1,10 +1,13 @@
 package com.example.music.Adaper
 
 import android.annotation.SuppressLint
+import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.music.Model.MusicModel
 import com.example.music.R
 import com.example.music.databinding.CurrentRecyclerRowBinding
@@ -33,9 +36,21 @@ class CurrentAdapter (
 
     override fun onBindViewHolder(holder: CurrenViewHolder, position: Int) {
 
-        holder.binding.textName.setText(musicList.get(position).title)
+        holder.binding.textName.setText(musicList.get(position).title.trim())
 
-        holder.binding.textModified.setText(musicList.get(position).artist)
+        holder.binding.textName.movementMethod = ScrollingMovementMethod()
+
+        holder.binding.textModified.setText(musicList.get(position).artist.trim())
+
+        try {
+            Glide.with(holder.itemView.context)
+                .load(musicList.get(position).uriImage)
+                .apply(RequestOptions().placeholder(R.drawable.img).centerCrop())
+                .error(R.drawable.img)
+                .into(holder.binding.imageView)
+        }catch (e : Exception){
+            println("Recycler adapter error: " + e.localizedMessage)
+        }
 
         holder.binding.recyclerRow.setOnClickListener {
             listener.onItemClick(musicList.get(position), position)

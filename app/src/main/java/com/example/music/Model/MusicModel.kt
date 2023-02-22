@@ -10,5 +10,6 @@ data class MusicModel(
     val songId  : String,
     val albumId : String,
     val artistId: String,
-    val uri: Uri
+    val uri: Uri,
+    val uriImage: String,
 )
