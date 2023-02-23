@@ -137,14 +137,11 @@ class MusicPlayerActivity : AppCompatActivity() {
     private fun btnClick(listSize : Int){
 
         binding.btnPlayOrPause.setOnClickListener {
-
             if (counterIcon % 2 == 0){
                 mPause()
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_start)
                 counterIcon++
-
             }else{
-
                 mStart()
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
@@ -152,7 +149,6 @@ class MusicPlayerActivity : AppCompatActivity() {
         }
 
         binding.btnNext.setOnClickListener {
-
             if (counterPositon < (listSize - 1)){
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
@@ -162,7 +158,6 @@ class MusicPlayerActivity : AppCompatActivity() {
         }
 
         binding.btnPrev.setOnClickListener {
-
             if (counterPositon > 0){
                 binding.btnPlayOrPause.setImageResource(R.drawable.ic_pause)
                 counterIcon++
@@ -173,7 +168,6 @@ class MusicPlayerActivity : AppCompatActivity() {
     }
 
     private fun onCompleteMusic(listSize: Int){
-
         if (counterPositon < (listSize - 1)){
             mediaPlayer?.setOnCompletionListener {
                 getMusic(++counterPositon)
