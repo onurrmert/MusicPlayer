@@ -1,4 +1,4 @@
-package com.example.music.Util
+package com.example.music.Music
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -17,16 +17,12 @@ class MediaPlayerController{
         var uri: Uri? = null
 
         fun mStart(){
-
             if (mediaPlayer == null) mediaPlayer = MediaPlayer.create(context, uri)
-
             mediaPlayer?.start()
         }
 
         fun mPause(){
-
             if (mediaPlayer == null) mediaPlayer = MediaPlayer.create(context, uri)
-
             if (mediaPlayer!!.isPlaying) mediaPlayer!!.pause()
         }
     }

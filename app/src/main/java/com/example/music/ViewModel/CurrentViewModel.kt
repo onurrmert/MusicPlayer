@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.music.Model.MusicModel
 import com.example.music.Util.CheckPermission
-import com.example.music.Util.IFindMusic
+import com.example.music.Music.IFindMusic
 
 class CurrentViewModel () : ViewModel() {
 

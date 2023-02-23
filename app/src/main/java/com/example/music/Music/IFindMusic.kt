@@ -1,4 +1,4 @@
-package com.example.music.Util
+package com.example.music.Music
 
 import android.content.Context
 import com.example.music.Model.MusicModel

@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import com.example.music.Model.MusicModel
+import com.example.music.Music.IFindMusic
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
@@ -17,30 +18,21 @@ class CheckPermission(private val findMusic: IFindMusic) {
     val musicList = MutableLiveData<ArrayList<MusicModel>>()
 
     fun checkPermissions(context: Context){
-
         Dexter.withContext(context)
-
             .withPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-
             .withListener(object : PermissionListener{
-
                 override fun onPermissionGranted(p0: PermissionGrantedResponse?) {
-
                     musicList.value = findMusic.getMusicFile(context)
                 }
-
                 override fun onPermissionDenied(p0: PermissionDeniedResponse?) {
                     Toast.makeText(context, "Permission is required", Toast.LENGTH_SHORT).show()
                 }
-
                 override fun onPermissionRationaleShouldBeShown(
                     p0: PermissionRequest?,
                     p1: PermissionToken?
                 ) {
                     p1?.continuePermissionRequest()
                 }
-
             }).check()
     }
-
 }

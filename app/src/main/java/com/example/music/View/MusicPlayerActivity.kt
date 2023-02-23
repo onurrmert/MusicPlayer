@@ -13,10 +13,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.music.Model.MusicModel
 import com.example.music.R
-import com.example.music.Util.FindMusic
-import com.example.music.Util.MediaPlayerController
-import com.example.music.Util.MediaPlayerController.Companion.mPause
-import com.example.music.Util.MediaPlayerController.Companion.mStart
+import com.example.music.Music.FindMusic
+import com.example.music.Music.MediaPlayerController
+import com.example.music.Music.MediaPlayerController.Companion.mPause
+import com.example.music.Music.MediaPlayerController.Companion.mStart
 import com.example.music.Util.TimetoMSS.Companion.timestampToMSS
 import com.example.music.ViewModel.MusicPlayerViewModel
 import com.example.music.databinding.ActivityMusicPlayerBinding
@@ -64,7 +64,6 @@ class MusicPlayerActivity : AppCompatActivity() {
     }
 
     private fun getMusic(position: Int){
-
         viewModel.musicList.observe(this) {
             val music = it.get(position)
             context = this
@@ -114,7 +113,6 @@ class MusicPlayerActivity : AppCompatActivity() {
     }
 
     private fun seekBarChange() {
-
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) mediaPlayer?.seekTo(progress.times(1000))
@@ -135,7 +133,6 @@ class MusicPlayerActivity : AppCompatActivity() {
     }
 
     private fun btnClick(listSize : Int){
-
         binding.btnPlayOrPause.setOnClickListener {
             if (counterIcon % 2 == 0){
                 mPause()

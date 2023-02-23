@@ -22,7 +22,6 @@ class CurrentAdapter (
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrenViewHolder {
-
         return CurrenViewHolder(
             LayoutInflater
             .from(parent.context)
@@ -42,15 +41,11 @@ class CurrentAdapter (
 
         holder.binding.textModified.setText(musicList.get(position).artist.trim())
 
-        try {
-            Glide.with(holder.itemView.context)
-                .load(musicList.get(position).uriImage)
-                .apply(RequestOptions().placeholder(R.drawable.img).centerCrop())
-                .error(R.drawable.img)
-                .into(holder.binding.imageView)
-        }catch (e : Exception){
-            println("Recycler adapter error: " + e.localizedMessage)
-        }
+        Glide.with(holder.itemView.context)
+            .load(musicList.get(position).uriImage)
+            .apply(RequestOptions().placeholder(R.drawable.img).centerCrop())
+            .error(R.drawable.img)
+            .into(holder.binding.imageView)
 
         holder.binding.recyclerRow.setOnClickListener {
             listener.onItemClick(musicList.get(position), position)

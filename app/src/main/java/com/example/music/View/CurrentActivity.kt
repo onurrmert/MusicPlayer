@@ -11,9 +11,9 @@ import com.example.music.Adaper.CurrentAdapter
 import com.example.music.Adaper.IOnItemClickListener
 import com.example.music.Model.MusicModel
 import com.example.music.R
-import com.example.music.Util.FindMusic
-import com.example.music.Util.IFindMusic
-import com.example.music.Util.MediaPlayerController
+import com.example.music.Music.FindMusic
+import com.example.music.Music.IFindMusic
+import com.example.music.Music.MediaPlayerController
 import com.example.music.ViewModel.CurrentViewModel
 import com.example.music.databinding.ActivityCurrentBinding
 import java.util.*
@@ -96,7 +96,6 @@ class CurrentActivity : AppCompatActivity() {
     }
 
     private fun initRecycler(musicModelList : ArrayList<MusicModel>){
-
             val adapter = CurrentAdapter(
                 musicModelList,
                 object: IOnItemClickListener{
@@ -105,7 +104,6 @@ class CurrentActivity : AppCompatActivity() {
                         openMusicPlayerActivity(musicList.indexOf(item))
                     }
                 })
-
             binding.recyclerView.adapter = adapter
             binding.recyclerView.layoutManager = LinearLayoutManager(this)
             adapter.setFilterList(musicModelList)
@@ -133,7 +131,6 @@ class CurrentActivity : AppCompatActivity() {
     }
 
     private fun closeCurrentMusic(){
-        stopService(Intent(this, MediaPlayerController::class.java))
         MediaPlayerController.mediaPlayer?.stop()
     }
 }

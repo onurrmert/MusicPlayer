@@ -1,4 +1,4 @@
-package com.example.music.Util
+package com.example.music.Music
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,7 +15,6 @@ class FindMusic : IFindMusic {
 
         val contentResolver = context.contentResolver
         val audioList: ArrayList<MusicModel> = ArrayList()
-
         val uri1: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0"
         val sortOrder = MediaStore.Audio.Media.TITLE + " ASC"
@@ -33,18 +32,13 @@ class FindMusic : IFindMusic {
                 val albumId: String = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID))
                 val artistId: String = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID))
                 val uri = Uri.fromFile(File(data))
-                val uriImage = Uri
-                    .withAppendedPath(Uri.parse("content://media/external/audio/albumart"), albumId).toString()
+                val uriImage = Uri.withAppendedPath(Uri.parse("content://media/external/audio/albumart"), albumId).toString()
 
                 audioList.add(MusicModel(data, title, album, artist, songId, albumId, artistId, uri, uriImage))
             }
         }
-
         assert(cursor != null)
-
-        if (cursor != null) {
-            cursor.close()
-        }
+        if (cursor != null) cursor.close()
         return audioList
     }
 }
